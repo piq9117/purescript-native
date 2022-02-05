@@ -1,23 +1,31 @@
-let
-  haskellNix = import (builtins.fetchTarball https://github.com/input-output-hk/haskell.nix/archive/master.tar.gz) {};
-  nixpkgsSrc = haskellNix.sources.nixpkgs-1903; # has hsc2hs-0.68.4
-
-  hsc2hsOverlay = self: super: {
-    buildPackages = super.buildPackages // {
-      hsc2hs = super.haskellPackages.hsc2hs;
-    };
-  };
-
-  nixpkgsArgs = haskellNix.nixpkgsArgs // {
-    overlays = haskellNix.nixpkgsArgs.overlays ++ [ hsc2hsOverlay ];
-  };
-in
-{ pkgs ? import nixpkgsSrc nixpkgsArgs
+{ mkDerivation, aeson, base, base-compat, bytestring, containers
+, directory, file-embed, filemanip, filepath, gitrev, hpack, lib
+, monad-parallel, mtl, pattern-arrows, process, protolude
+, purescript, safe, text, transformers
 }:
-
-pkgs.haskell-nix.stackProject {
-  src = pkgs.haskell-nix.haskellLib.cleanGit {
-    name = "purescript-native";
-    src = ./.;
-  };
+mkDerivation {
+  pname = "psgo";
+  version = "0.1.0.0";
+  src = ./.;
+  isLibrary = true;
+  isExecutable = true;
+  libraryHaskellDepends = [
+    aeson base base-compat bytestring containers directory file-embed
+    filemanip filepath gitrev monad-parallel mtl pattern-arrows process
+    protolude purescript safe text transformers
+  ];
+  libraryToolDepends = [ hpack ];
+  executableHaskellDepends = [
+    aeson base base-compat bytestring containers directory file-embed
+    filemanip filepath gitrev monad-parallel mtl pattern-arrows process
+    protolude purescript safe text transformers
+  ];
+  testHaskellDepends = [
+    aeson base base-compat bytestring containers directory file-embed
+    filemanip filepath gitrev monad-parallel mtl pattern-arrows process
+    protolude purescript safe text transformers
+  ];
+  prePatch = "hpack";
+  homepage = "https://github.com/andyarvanitis/purescript-native#readme";
+  license = lib.licenses.bsd3;
 }
